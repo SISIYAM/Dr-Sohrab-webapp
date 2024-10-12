@@ -337,6 +337,13 @@ include 'includes/head.php';
                     <td><?=$row['full_name']?></td>
                     <td>
                       <button type="button" value="<?=$row['id']?>"
+                        class="badge bg-success border-0 assignCourse" data-bs-toggle="modal"
+                        data-bs-target="#assignCourseModal">
+                        Assign course
+                      </button>
+                    </td>
+                    <td>
+                      <button type="button" value="<?=$row['id']?>"
                         class="badge bg-primary border-0 viewStudentInformationBtn" data-bs-toggle="modal"
                         data-bs-target="#studentInformationModal">
                         View
@@ -393,6 +400,28 @@ include 'includes/head.php';
               <i class="bx bx-x d-block d-sm-none"></i>
               <span class="d-none d-sm-block">Close</span>
             </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+     <!--Assign course content Modal -->
+     <div class="modal fade" id="assignCourseModal" tabindex="-1" role="dialog"
+      aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+          <div class="modal-body" id="assignCourseModalContent">
+
+
+          </div>
+
+          <div class="modal-footer">
+           
+            <button type="button" class="btn btn-light-secondary" data-bs-dismiss="modal">
+              <i class="bx bx-x d-block d-sm-none"></i>
+              <span class="d-none d-sm-block">Close</span>
+            </button>
+            <button class="btn btn-primary" type="button" id="submitAssignCourseModal">Assign</button>
           </div>
         </div>
       </div>
@@ -982,7 +1011,7 @@ include 'includes/head.php';
         <div class="card">
           <div class="card-header">
             <h5 class="card-title">
-              Students List
+              Purchased History
             </h5>
           </div>
           <div class="card-body">
@@ -1026,8 +1055,30 @@ include 'includes/head.php';
                     <td><?=$row['student_id']?></td>
                     <td><?=$studentResult['full_name']?></td>
                     <td><?=$package_id?></td>
-                    <td><?=$packageRow['name']?></td>
+                    <td><?php
+                    if(mysqli_num_rows($courseInfo) > 0){
+                      echo $packageRow['name'];
+                    }else{
+                      echo "Course Not found!";
+                    }
+                    ?></td>
                     <td><?=$enrolled?></td>
+                    <td>
+                      <?php 
+                      if($row['status'] == 1){
+                        ?>
+                        <button type="button" class="badge bg-danger border-0 banUserButton" 
+                      value="<?=$studentResult['id']?>" data-recordId="<?=$row['id']?>" data-status="0">Ban</button>
+                         </td>
+                        <?php
+                      }else{
+                        ?>
+                        <button type="button" class="badge bg-success border-0 banUserButton" 
+                      value="<?=$studentResult['id']?>" data-recordId="<?=$row['id']?>" data-status="1">UnBan</button>
+                         </td>
+                        <?php
+                      }
+                      ?>
                     <td>
                       <button type="button" value="<?=$studentResult['id']?>"
                         class="badge bg-primary border-0 viewStudentInformationBtn" data-bs-toggle="modal"

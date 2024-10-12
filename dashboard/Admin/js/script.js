@@ -1,5 +1,51 @@
 $(document).ready(function () {
   // POPUP MODAL Code start from here ============================>
+
+  // code for assign courses
+  $(".assignCourse").on("click", function () {
+    const studentId = $(this).val();
+    $.ajax({
+      type: "post",
+      url: "includes/ajax.php",
+      data: {
+        id: studentId,
+        assignCourseStudent: "assignCourseStudent",
+      },
+      success: function (response) {
+        $("#assignCourseModalContent").html(response);
+      },
+    });
+  });
+
+  // code for submit assign course modal
+  $("#submitAssignCourseModal").on("click", function () {
+    const student_id = $("#assignStudentId").val();
+    const package_id = $("#package_id").val();
+
+    $.ajax({
+      type: "post",
+      url: "includes/ajax.php",
+      data: {
+        id: student_id,
+        package_id,
+        insertAssignCourse: "insertAssignCourse",
+      },
+      success: function (response) {
+        console.log(response);
+        if (response == 200) {
+          Swal2.fire({
+            icon: "success",
+            title: "Assigned",
+          }).then(() => {
+            location.reload();
+          });
+        } else {
+          callError();
+        }
+      },
+    });
+  });
+
   // show student information
   $(".viewStudentInformationBtn").on("click", function () {
     const studentId = $(this).val();
@@ -686,6 +732,51 @@ $(document).ready(function () {
       success: function (response) {
         $("#chapterBox").html(response);
       },
+    });
+  });
+
+  // code for ban user form course
+  $(".banUserButton").on("click", function () {
+    const student_id = $(this).val();
+    const record_id = $(this).attr("data-recordId");
+    const status = $(this).attr("data-status");
+
+    Swal.fire({
+      title: "Are you sure?",
+
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        $.ajax({
+          type: "post",
+          url: "includes/ajax.php",
+          data: {
+            student_id,
+            record_id,
+            status,
+            banUserBtn: "banUserBtn",
+          },
+          success: function (response) {
+            console.log(response);
+            const res = JSON.parse(response);
+            if (res.status == 200) {
+              Swal2.fire({
+                icon: res.icon,
+                title: res.title,
+                text: res.message,
+              }).then(() => {
+                location.reload();
+              });
+            } else {
+              callError();
+            }
+          },
+        });
+      }
     });
   });
 

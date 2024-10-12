@@ -1,6 +1,125 @@
 <?php
 include 'dbcon.php';
 
+
+// search course and student information for assign courses
+if (isset($_POST['assignCourseStudent'])) { 
+  $id = $_POST['id'];
+  $output = "";
+
+  // Fetch student details
+  $search = mysqli_query($con, "SELECT * FROM students WHERE id = '$id'");
+
+  // Fetch packages
+  $package_query = mysqli_query($con, "SELECT * FROM package");
+
+  if (mysqli_num_rows($search) > 0) {
+    $row = mysqli_fetch_array($search);
+
+    $output .= '
+      <label for="student_id">Student ID: </label>
+      <div class="form-group">
+        <input type="text" id="assignStudentId" value="' . $row['student_id'] . '" class="form-control">
+      </div>
+
+      <label for="name">Name: </label>
+      <div class="form-group">
+        <input type="text" value="' . $row['full_name'] . '" class="form-control" readonly>
+      </div>
+
+      <label for="username">Username: </label>
+      <div class="form-group">
+        <input type="text" value="' . $row['username'] . '" class="form-control" readonly>
+      </div>
+
+      <label for="email">Email: </label>
+      <div class="form-group">
+        <input type="text" value="' . $row['email'] . '" class="form-control" readonly>
+      </div>
+
+      <label for="mobile">Mobile: </label>
+      <div class="form-group">
+        <input type="text" value="' . $row['mobile'] . '" class="form-control" readonly>
+      </div>
+    ';
+
+    // Add package select dropdown
+    $output .= '
+      <label for="package">Select course: </label>
+      <div class="form-group">
+        <select class="form-control" id="package_id" name="package">
+          <option value="">-- Select Package --</option>';
+
+    // Populate the dropdown with packages
+    while ($package = mysqli_fetch_array($package_query)) {
+      $output .= '<option value="' . $package['package_id'] . '">' . $package['name'] . '</option>';
+    }
+
+    $output .= '
+        </select>
+      </div>
+    ';
+
+    echo $output;
+  } else {
+    // No student found
+    echo '<div class="alert alert-danger">No data found.</div>';
+  }
+}
+
+
+// code for sumit assign course form and assig course
+if(isset($_POST['insertAssignCourse'])){
+  $student_id = $_POST['id'];
+  $package_id = $_POST['package_id'];
+  date_default_timezone_set('Asia/Dhaka');
+  $timestamp = time();
+  $status = 1;
+  
+  if($package_id != NULL){
+    $query = "INSERT INTO package_record (student_id, package_id,timestamp,status) VALUES ('$student_id', '$package_id','$timestamp','$status')";
+  
+  if (mysqli_query($con, $query)) {
+      echo 200; 
+  } else {
+      echo 500; 
+  }
+  }else{
+    echo 500;
+  }
+}
+
+
+// code for ban user from courese
+if(isset($_POST['banUserBtn'])){
+  $student_id = $_POST['student_id'];
+  $record_id = $_POST['record_id'];
+  $status = $_POST['status'];
+  $query = "UPDATE package_record SET status = '$status' WHERE id='$record_id'";
+  
+  // Determine the message based on the status
+  if ($status == 0) {
+    $message = "The user has been successfully banned from the course.";
+    $title = "User Banned";
+  } else {
+    $title = "User Unbanned";
+    $message = "The user has been successfully unbanned from the course.";
+  }
+
+  
+  if (mysqli_query($con, $query)) {
+    echo json_encode([
+      "status" => 200,
+      "title" => $title,
+      "message" => $message,
+      "icon" => "success"
+  ]);
+  } else {
+      echo 500; 
+  }
+}
+
+
 // search student information
 if(isset($_POST['searchStudentInformation'])){
   $id = $_POST['id'];
@@ -483,5 +602,7 @@ if(isset($_POST['updateExam'])){
 
   echo $output;
  }
+
+
 
 ?>
