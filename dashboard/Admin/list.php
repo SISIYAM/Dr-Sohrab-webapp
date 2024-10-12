@@ -315,6 +315,7 @@ include 'includes/head.php';
                     <th>#</th>
                     <th>ID</th>
                     <th>Name</th>
+                    <th>Email</th>
                     <th>Username</th>
                     <th></th>
                     <?php
@@ -332,6 +333,7 @@ include 'includes/head.php';
                     <td><?=$no?></td>
                     <td><?=$row['student_id']?></td>
                     <td><?=$row['username']?></td>
+                    <td><?=$row['email']?></td>
                     <td><?=$row['full_name']?></td>
                     <td>
                       <button type="button" value="<?=$row['id']?>"
@@ -1322,26 +1324,33 @@ include 'includes/head.php';
   ?>
   <script src="js/script.js"></script>
   <script>
-  function myFunction() {
-    var input, filter, table, tr, td, i, txtValue;
-    input = document.getElementById("myInput");
-    filter = input.value.toUpperCase();
-    table = document.getElementById("myTable");
-    tr = table.getElementsByTagName("tr");
-    for (i = 0; i < tr.length; i++) {
-      td = tr[i].getElementsByTagName("td")[2];
-      td1 = tr[i].getElementsByTagName("td")[1];
-      if (td) {
-        txtValue = td.textContent || td.innerText;
-        txtValue1 = td1.textContent || td1.innerText;
-        if (txtValue.toUpperCase().indexOf(filter) > -1 || txtValue1.toUpperCase().indexOf(filter) > -1) {
+ function myFunction() {
+  var input, filter, table, tr, td, i, j, txtValue;
+  input = document.getElementById("myInput");
+  filter = input.value.toUpperCase();
+  table = document.getElementById("myTable");
+  tr = table.getElementsByTagName("tr");
+
+  // Loop through all table rows (except the header row)
+  for (i = 1; i < tr.length; i++) {
+    tr[i].style.display = "none";  
+     // Get all cells in the row
+    td = tr[i].getElementsByTagName("td");
+
+    // Loop through all cells in the row
+    for (j = 0; j < td.length; j++) {
+      if (td[j]) {
+        txtValue = td[j].textContent || td[j].innerText;
+
+        // If the search term matches any cell, show the row
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
           tr[i].style.display = "";
-        } else {
-          tr[i].style.display = "none";
+          break;  
         }
       }
     }
   }
+}
   </script>
 </body>
 
