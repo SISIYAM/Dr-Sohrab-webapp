@@ -94,6 +94,36 @@ include 'includes/head.php';
             </div>
           </div>
         </div>
+        <div class="col-lg-7">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="card-title">Course Routine</h4>
+            </div>
+            <div class="card-body">
+              <?php 
+              $getPurchasedCourse = mysqli_query($con,"SELECT * FROM package_record WHERE student_id='$student_id' AND status = '1'");
+              if(mysqli_num_rows($getPurchasedCourse) > 0){
+                while($purchaseCourseRow = mysqli_fetch_assoc($getPurchasedCourse)){
+                  // search course based on package/course id
+                  $AvailableCourse_id = $purchaseCourseRow['package_id'];
+                  $searchCourseNameSql = mysqli_query($con,"SELECT * FROM package WHERE package_id='$AvailableCourse_id' AND status='1'");
+                  if(mysqli_num_rows($searchCourseNameSql) > 0){
+                    $availableCourseRow = mysqli_fetch_assoc($searchCourseNameSql);
+                    ?>
+                    <div class="card p-3 shadow-lg">
+                      <h3><?=$availableCourseRow['name']?></h3>
+                    <a href="./Admin/<?=$availableCourseRow['routine']?>" target="_blank"><button type="button" class="btn btn-success text-dark">Downlod Routine</button></a>
+                    </div>
+                    <?php
+                  }
+                
+                }
+              }
+              ?>
+             
+             
+            </div>
+          </div>
       </div>
 
     </div>

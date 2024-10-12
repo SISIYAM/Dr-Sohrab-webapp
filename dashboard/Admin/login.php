@@ -45,9 +45,7 @@ include './includes/dbcon.php';
                     </div>
                     <div class="form-row d-flex justify-content-between mt-4 mb-2">
 
-                      <div class="form-group">
-                        <a href="page-forgot-password.html">Forgot Password?</a>
-                      </div>
+                  
                     </div>
                     <div class="text-center">
                       <button type="submit" name="adminLoginBtn" class="btn btn-primary btn-block">Sign me in</button>
