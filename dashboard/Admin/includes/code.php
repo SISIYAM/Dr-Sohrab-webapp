@@ -93,59 +93,71 @@ Swal.fire({
   }
 }
 
+
 // Check if the admin login button was clicked
 if (isset($_POST['adminLoginBtn'])) {
-  $username = mysqli_real_escape_string($con, $_POST['username']);
-  $password = mysqli_real_escape_string($con, $_POST['password']);
+    $username = trim($_POST['username']); 
+    $password = trim($_POST['password']);
 
-  // Query to search for the username
-  $username_search = "SELECT * FROM admin WHERE username='$username'";
-  $query = mysqli_query($con, $username_search);
+    // Prepare the SQL query to search for the username using prepared statements
+    $stmt = $con->prepare("SELECT * FROM admin WHERE username = ?");
+    $stmt->bind_param("s", $username); 
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-  // Check if the query was successful and a result was found
-  if ($query && mysqli_num_rows($query) > 0) {
-      $user = mysqli_fetch_assoc($query);  // Fetch the user details
-      $db_pass = $user['password'];        // Hashed password from DB
+    // Check if a user was found
+    if ($result && $result->num_rows > 0) {
+        $user = $result->fetch_assoc();  
+        $db_pass = $user['password'];    
 
-      // Verify the password
-      if (password_verify($password, $db_pass)) {
-          // Store user data in session variables
-          $_SESSION['username'] = $user['username'];
-          $_SESSION['email'] = $user['email'];
-          $_SESSION['id'] = $user['id'];
-          $_SESSION['post'] = $user['post'];
-          ?>
-          <script>
-              location.replace("index.php");
-          </script>
-          <?php
-      } else {
-          // Incorrect password error
-          ?>
-          <script>
-              Swal.fire({
-                  icon: "error",
-                  title: "Incorrect Password!",
-              }).then(() => {
-                  location.replace("login.php?login");
-              });
-          </script>
-          <?php
-      }
-  } else {
-      // Invalid username error
-      ?>
-      <script>
-          Swal.fire({
-              icon: "warning",
-              title: "Invalid Username!",
-          }).then(() => {
-              location.replace("login.php?login");
-          });
-      </script>
-      <?php
-  }
+        // Verify the password
+        if (password_verify($password, $db_pass)) {
+     
+            session_regenerate_id(true);
+
+
+            $_SESSION['username'] = htmlspecialchars($user['username'], ENT_QUOTES, 'UTF-8');
+            $_SESSION['email'] = htmlspecialchars($user['email'], ENT_QUOTES, 'UTF-8');
+            $_SESSION['id'] = (int)$user['id']; 
+            $_SESSION['post'] = htmlspecialchars($user['post'], ENT_QUOTES, 'UTF-8');
+
+            ?>
+            <script>
+                location.replace("index.php");
+            </script>
+            <?php
+        } else {
+            // Incorrect password error
+            ?>
+            <script>
+                Swal.fire({
+                    icon: "error",
+                    title: "Incorrect Password!",
+                }).then(() => {
+                    location.replace("login.php?login");
+                });
+            </script>
+            <?php
+        }
+    } else {
+        // Invalid username error
+        ?>
+        <script>
+            Swal.fire({
+                icon: "warning",
+                title: "Invalid Username!",
+            }).then(() => {
+                location.replace("login.php?login");
+            });
+        </script>
+        <?php
+    }
+
+    // Close the statement to free resources
+    $stmt->close();
 }
+
+
 
 // change password
 if(isset($_POST['changePassword'])){
