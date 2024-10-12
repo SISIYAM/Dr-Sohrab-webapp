@@ -26,5 +26,14 @@ if(mysqli_num_rows($selectStudent) > 0){
   $studentUserName = "Not Added";
   $studentFullName = "Not Added";
 }
+
+// search student's purchased courses id
+$purchasedCoursesIds = [];
+$purchasedStudentCourseSearch = mysqli_query($con,"SELECT * FROM package_record WHERE student_id='$student_id' AND status='1'");
+if(mysqli_num_rows($purchasedStudentCourseSearch) > 0){
+  while($purchasedStudentCourseRow = mysqli_fetch_assoc($purchasedStudentCourseSearch)){
+    $purchasedCoursesIds[] = $purchasedStudentCourseRow['package_id'];
+  }
+}
 ?>
 <input type="hidden" id="studentIDup" value="<?=$student_id?>">

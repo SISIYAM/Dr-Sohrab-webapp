@@ -9,6 +9,103 @@ include './includes/login_required.php';
   <?php
 include 'includes/head.php';
 ?>
+ <style>
+        .video-container {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .lecture-sheet-btn {
+            background-color: #6f42c1;
+            color: white;
+            margin-top: 10px;
+        }
+
+        .lecture-sheet-btn:hover {
+            background-color: #5a3699;
+            color: white;
+        }
+
+        .viewer-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .viewer-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        
+        .lecture-list {
+    max-height: 485px;
+    overflow-y: auto;
+    border-radius: 5px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, .1);
+    background-color: #fff;
+    padding: 15px;
+    margin-top: 20px;
+}
+
+/* Style for individual lecture items */
+.lecture-list .lecture-item {
+    display: flex;
+    align-items: center;
+    background-color: #888; /* Base color for the item */
+    color: white; /* Text color */
+    border-radius: 5px;
+    margin-bottom: 10px;
+    padding: 10px;
+    transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+/* Hover effect for lecture items */
+.lecture-list .lecture-item:hover {
+    background-color: #111; /* Darker color on hover */
+}
+
+/* Make anchor tags look like buttons and display flex in column */
+.lecture-list .lecture-item a {
+    display: flex; /* Change to flex to allow column layout */
+    flex-direction: column; /* Arrange items in a column */
+    color: white;
+    text-decoration: none; 
+    flex: 1; 
+    margin: 5px;
+    padding: 10px 15px; 
+    border: none; 
+    border-radius: 5px; 
+    background-color: #888; 
+    transition: background-color 0.3s ease, transform 0.2s;
+}
+
+/* Styling for the active link */
+.lecture-list .lecture-item a.active {
+    font-weight: bold; 
+    background-color: #ffcc00; 
+    color: #111; 
+    text-decoration: none; 
+}
+
+/* Hover effect for anchor buttons */
+.lecture-list .lecture-item a:hover {
+    background-color: #444; 
+    transform: translateY(-2px);
+}
+
+/* Additional styling for the text within anchor tags */
+.lecture-list .lecture-item p {
+    margin: 0; 
+    flex: 1; 
+    padding-left: 10px;
+}
+
+
+    </style>
+   
 </head>
 
 <body>
@@ -117,30 +214,70 @@ include 'includes/head.php';
           $row = mysqli_fetch_array($select);
           $package_id = $row['course_id'];
           ?>
-        <div class="col-xl-9">
-          <h1>Lecture 1</h1>
-          <div class="embed-responsive embed-responsive-16by9">
-            <iframe class="embed-responsive-item" src="<?=$row['src']?>" allowfullscreen></iframe>
-          </div>
+           <div class="container mt-5">
+    <div class="row">
+        <!-- Video and description column -->
+        <div class="col-md-8">
+            <div class="video-container">
+                <iframe width="100%" height="400" src="<?=$row['src']?>" frameborder="0"
+                        allowfullscreen></iframe>
+                <h5 class="mt-3">
+                    <?php
+           echo mysqli_fetch_array(mysqli_query($con, "SELECT * FROM package WHERE package_id='$package_id'"))['name'];
+            ?>
+        </h5>
+                <p><small><i class="far fa-calendar-alt"></i> 2024-08-17 &nbsp;&nbsp; <i class="fas fa-heart"></i> 1 Likes</small></p>
+                <button class="btn lecture-sheet-btn">Lecture Sheet</button>
+               
+            </div>
         </div>
 
-        <div class="col-xl-3">
-          <h3><?php
-            echo mysqli_fetch_array(mysqli_query($con, "SELECT * FROM package WHERE package_id='$package_id'"))['name'];
-            ?></h3>
-        </div>
+        <!-- Viewer info and lecture list -->
+        <div class="col-md-4">
+            <!--<div class="viewer-info">-->
+            <!--    <img src="https://via.placeholder.com/40" alt="Viewer Avatar">-->
+            <!--    <div>-->
+            <!--        <strong>Evangel Purification</strong>-->
+            <!--        <p class="mb-0">1 People Are Watching</p>-->
+            <!--    </div>-->
+            <!--</div>-->
 
-        <?php 
-         if($row['lectureSheet'] != NULL){
-          ?>
-        <div class="card-header">
-          <a href="./Admin/<?=$row['lectureSheet']?>"> <button class="btn btn-primary btn-lg">Download Lecture
-              Sheet</button></a>
-        </div>
-        <?php
-         }
-         ?>
+    <div class="lecture-list">
+    <div class="lecture-item">
+        <div class="p-2">
+            <?php
+            // Get the 'Watch' ID from the URL
+            $currentWatchId = isset($_GET['Watch']) ? $_GET['Watch'] : null;
 
+            if (!empty($purchasedCoursesIds)) {
+                $quotedIds = array_map(function ($id) {
+                    return "'" . mysqli_real_escape_string($GLOBALS['con'], $id) . "'";
+                }, $purchasedCoursesIds);
+                $idsString = implode(",", $quotedIds);
+                $searchRelatedLecture = mysqli_query($con, "SELECT * FROM lectures WHERE course_id IN ($idsString)");
+
+                if (mysqli_num_rows($searchRelatedLecture) > 0) {
+                    while ($lectureRowFilter = mysqli_fetch_assoc($searchRelatedLecture)) {
+                        // Check if the current watch ID matches the lecture's watch ID
+                        $isActive = ($lectureRowFilter['watch_id'] == $currentWatchId);
+                        ?>
+                        <a href="lectures?Watch=<?=$lectureRowFilter['watch_id']?>" 
+                           class="<?= $isActive ? 'active' : '' ?>"> <!-- Add 'active' class if matched -->
+                            <p><?= $lectureRowFilter['title'] ?></p>
+                        </a>
+                        <?php
+                    }
+                }
+            }
+            ?>
+        </div>
+    </div>
+</div>
+
+        </div>
+    </div>
+</div>
+        
         <?php
         }
         ?>
@@ -209,84 +346,9 @@ include 'includes/head.php';
           $row = mysqli_fetch_array($select);
           $package_id = $row['course_id'];
           ?>
-        <!--<div class="col-xl-9">-->
-        <!--  <div class="embed-responsive embed-responsive-16by9">-->
-            <!--<iframe class="embed-responsive-item" src="<?=$row['src']?>" allowfullscreen></iframe>-->
-        <!--  </div>-->
-        <!--</div>-->
-
-        <!--<div class="col-xl-3">-->
-        <!--  <h3><?php-->
-        <!--    echo mysqli_fetch_array(mysqli_query($con, "SELECT * FROM package WHERE package_id='$package_id'"))['name'];-->
-        <!--    ?></h3>-->
-        <!--</div>-->
-
-        <!--<div class="card-header">-->
-        <!--  <h1>Lecture 1</h1>-->
-        <!--</div>-->
+      
        
-  <style>
-        .video-container {
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-        }
-
-        .lecture-sheet-btn {
-            background-color: #6f42c1;
-            color: white;
-            margin-top: 10px;
-        }
-
-        .lecture-sheet-btn:hover {
-            background-color: #5a3699;
-            color: white;
-        }
-
-        .viewer-info {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .viewer-info img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            margin-right: 10px;
-        }
-        
-        .lecture-list{
-             height: 485px;
-             overflow-y: scroll;
-             border-radius: 5px;
-             box-shadow: 0 5px 15px rgba(0,0,0,.1);
-             background-color: #fff;
-             padding:15px;
-             margin-top: 20px;
-        }
-       
-     
-        .lecture-list img {
-            margin-right: 2px;
-            border-radius: 5px;
-        }
-
-        .lecture-list .lecture-item {
-              display: flex;
-            align-items:center;
-            background-color: #888;
-            color: white;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            padding: 10px;
-        }
-         .lecture-list .lecture-item:hover {
-            background-color: #111;
-            
-        }
-    </style>
-   
+ 
 
    <div class="container mt-5">
     <div class="row">
@@ -316,13 +378,38 @@ include 'includes/head.php';
             <!--    </div>-->
             <!--</div>-->
 
-            <div class="lecture-list">
-                <div class="lecture-item">
-                    <img src="https://via.placeholder.com/50x50" alt="Lecture Thumbnail">
-                    <p class="mt-2">Lecture 2</p>
-                </div>
-             
-            </div>
+    <div class="lecture-list">
+    <div class="lecture-item">
+        <div class="p-2">
+            <?php
+            // Get the 'Watch' ID from the URL
+            $currentWatchId = isset($_GET['Watch']) ? $_GET['Watch'] : null;
+
+            if (!empty($purchasedCoursesIds)) {
+                $quotedIds = array_map(function ($id) {
+                    return "'" . mysqli_real_escape_string($GLOBALS['con'], $id) . "'";
+                }, $purchasedCoursesIds);
+                $idsString = implode(",", $quotedIds);
+                $searchRelatedLecture = mysqli_query($con, "SELECT * FROM lectures WHERE course_id IN ($idsString)");
+
+                if (mysqli_num_rows($searchRelatedLecture) > 0) {
+                    while ($lectureRowFilter = mysqli_fetch_assoc($searchRelatedLecture)) {
+                        // Check if the current watch ID matches the lecture's watch ID
+                        $isActive = ($lectureRowFilter['watch_id'] == $currentWatchId);
+                        ?>
+                        <a href="lectures?Watch=<?=$lectureRowFilter['watch_id']?>" 
+                           class="<?= $isActive ? 'active' : '' ?>"> <!-- Add 'active' class if matched -->
+                            <p><?= $lectureRowFilter['title'] ?></p>
+                        </a>
+                        <?php
+                    }
+                }
+            }
+            ?>
+        </div>
+    </div>
+</div>
+
         </div>
     </div>
 </div>
