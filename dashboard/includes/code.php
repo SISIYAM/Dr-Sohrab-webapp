@@ -63,7 +63,7 @@ Swal.fire({
    
            $db_pass = $username_pass['password'];
          
-           $_SESSION['student_id'] = $username_pass['student_id'];
+           setcookie('student_id', $username_pass['student_id'], time() + (365 * 24 * 60 * 60), '/');
            
            $pass_decode = password_verify($password, $db_pass);
    
@@ -122,7 +122,7 @@ if(isset($_POST['LoginBtn'])){
 
         $db_pass = $username_pass['password'];
         
-        $_SESSION['student_id'] = $username_pass['student_id'];
+        setcookie('student_id', $username_pass['student_id'], time() + (365 * 24 * 60 * 60), '/');
         
         $pass_decode = password_verify($password, $db_pass);
 
@@ -165,7 +165,7 @@ Swal.fire({
 // submit and calculate result
 if(isset($_POST['submitExam'])){
   $exam_id = $_POST['exam_id'];
-  $insertStudentID = $_SESSION['student_id'];
+  $insertStudentID = $_COOKIE['student_id'];
   $right = 0;
   $wrong = 0;
   $noAns = 0;
@@ -744,7 +744,7 @@ if(isset($_POST['submitCustomExam'])){
   $exam_id = $_POST['exam_id'];
   $mark = $_POST['mark'];
   $negative_mark = $_POST['negative_mark'];
-  $insertStudentID = $_SESSION['student_id'];
+  $insertStudentID = $_COOKIE['student_id'];
   $right = 0;
   $wrong = 0;
   $noAns = 0;

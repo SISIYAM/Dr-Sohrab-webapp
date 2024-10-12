@@ -147,7 +147,7 @@ include 'includes/head.php';
         }else{
           while($packageRow = mysqli_fetch_array($courseCount)){
             $package_id = $packageRow['package_id'];
-            $searchPackage = mysqli_query($con, "SELECT * FROM package WHERE package_id='$package_id' AND status='1'");
+            $searchPackage = mysqli_query($con, "SELECT * FROM package WHERE package_id='$package_id' AND custom_exam='1' AND status='1'");
             if(mysqli_num_rows($searchPackage) > 0){
               $courseRow = mysqli_fetch_array($searchPackage);
               ?>
