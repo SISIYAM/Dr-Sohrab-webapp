@@ -1,6 +1,45 @@
 <?php 
 include './Admin/includes/dbcon.php';
 include './includes/login_required.php';
+function getYouTubeVideoId($url) {
+  
+  $urlParts = parse_url($url);
+  
+  // Check if the host is a valid YouTube domain
+  if (isset($urlParts['host'])) {
+      // Handle youtu.be links
+      if ($urlParts['host'] === 'youtu.be') {
+       
+          return ltrim($urlParts['path'], '/');
+      }
+      
+      // Handle www.youtube.com or youtube.com links
+      if ($urlParts['host'] === 'www.youtube.com' || $urlParts['host'] === 'youtube.com') {
+          // Extract the query string
+          parse_str($urlParts['query'], $query);
+          
+      
+          if (isset($query['v'])) {
+              return $query['v'];
+          }
+      }
+
+      // Handle youtube.com/embed links
+      if (strpos($urlParts['path'], '/embed/') === 0) {
+          // Extract the video ID from the /embed/ path
+          return trim(str_replace('/embed/', '', $urlParts['path']));
+      }
+
+      // Handle youtube.com/v/ links
+      if (strpos($urlParts['path'], '/v/') === 0) {
+          
+          return trim(str_replace('/v/', '', $urlParts['path']));
+      }
+  }
+
+
+  return null;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -102,10 +141,186 @@ include 'includes/head.php';
     flex: 1; 
     padding-left: 10px;
 }
-
-
     </style>
-   
+ 
+ <style>
+      .content {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+          }
+          #video-container {
+            position: relative;
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+            aspect-ratio: 16 / 9;
+          }
+          #ytplayer {
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+          }
+          #overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+          }
+          #pause-button {
+            border:none;
+            background-color:transparent;
+            transform:scale(2.5);
+            display:none;
+            margin-top:-1px;
+            color:#0075FF;
+            cursor: pointer;
+          }
+          #play-button{
+            border:none;
+            transform:scale(2.5);
+            background-color:transparent; 
+            margin-top:-1px;
+            color:#0075FF;
+            cursor: pointer;
+          }
+          #play-loop{
+            border:none;
+            background-color:transparent;
+            transform:scale(1.5);
+            color:#0075FF;
+            cursor: pointer;
+          }
+          #stop-loop {
+            border:none;
+            background-color:transparent;
+            transform:scale(1.5);
+            display: none;
+            color:#0075FF;
+            cursor: pointer;
+          }
+          #muteBtn{
+            border:none;
+            background-color:transparent;
+            transform:scale(2);
+            color:red;
+            cursor: pointer;
+          }
+    
+          #unmuteBtn {
+            border:none;
+            background-color:transparent;
+            transform:scale(2);
+            display: none;
+            color:red;
+            cursor: pointer;
+          }
+          #fullscreen-button {
+            border:none;
+            background-color:transparent;
+            transform:scale(1.6);
+            cursor: pointer;
+          }
+          #rewind-button{
+            border:none;
+            cursor: pointer;
+          }
+          #forward-button{
+            border:none;
+            cursor: pointer;
+          }
+          .time-controls{
+            display:flex; align-items:center; justify-content:center;
+            margin-bottom:40px;
+          }
+          .slider-container {
+            width: 100%;
+            max-width:100%;
+          }
+          .control-buttons{
+            display:flex;
+            
+          }
+          .control-buttons button,
+          .time-controls button,
+          .slider-container input {
+            margin: 0 5px;
+          }
+          .time-display-count {
+            margin-left: 20px;
+            text-align: center;
+            color:#000000;
+          }
+          .slider-container {
+            margin-top: 2px;
+          }
+          .slider-container input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+          }
+          .time-controls{
+            margin-top:-30px;
+          }
+          #volume-slider {
+            width: 100%;
+            max-width: 70px;
+            cursor: pointer;
+          }
+          .voulume-section {
+            display: flex;
+            flex-direction: row;
+          }
+          .right-control{
+            display: flex;
+            flex-direction: row;
+            gap:10px;
+          }
+    
+          .bottom-content{
+            display:flex;
+            justify-content:space-between;
+            margin:10px;
+            align-items:center;
+            
+          }
+          .control-container{
+            margin-top:10px;
+          }
+          
+          .speed-controls{
+           display:flex;
+           justify-content:center;
+           align-items:center;
+           color:#000000;
+          }
+          .form-select{
+            color:#000000;
+          }
+          @media (max-width: 768px) {
+            #video-container {
+              max-width: 100%;
+            }
+          }
+          @media (max-width: 576px) { 
+    
+          .control-container{
+            display:flex;
+            flex-direction:column;
+            gap:20px;
+          }
+          .bottom-content{
+            display:flex;
+            flex-direction:column;
+          }
+          .time-controls{
+            margin-top:0;
+          }
+          }
+          
+    </style>
+ 
 </head>
 
 <body>
@@ -213,14 +428,83 @@ include 'includes/head.php';
         if(mysqli_num_rows($select) > 0){
           $row = mysqli_fetch_array($select);
           $package_id = $row['course_id'];
+          $video_id = getYouTubeVideoId($row['src']);
           ?>
            <div class="container mt-5">
     <div class="row">
+    <input type="hidden" name="" id="videoIDYT" value="<?=$video_id?>">
+
         <!-- Video and description column -->
         <div class="col-md-8">
             <div class="video-container">
-                <iframe width="100%" height="400" src="<?=$row['src']?>" frameborder="0"
-                        allowfullscreen></iframe>
+            <div class="content">
+    <div id="video-container">
+      <div id="ytplayer"></div>
+      <div id="overlay"></div>
+    </div>
+
+    <div class="control-container">
+      <div class="slider-container">
+        <input
+          id="time-slider"
+          type="range"
+          min="0"
+          max="100"
+          value="0"
+          step="1"
+        />
+      </div>
+      <div class="bottom-content">
+        <div class="control-buttons">
+          <button id="play-button"><i class="bi bi-play-fill"></i></button>
+          <button id="pause-button"><i class="bi bi-pause-fill"></i></button>
+          <button id="play-loop"><i class="fa-solid fa-repeat"></i></button>
+          <button id="stop-loop"><i class="fa-solid fa-ban"></i></button>
+          <div class="volume-controls">
+            <div class="voulume-section">
+              <button id="muteBtn">
+                <i class="bi bi-volume-down-fill"></i>
+              </button>
+              <button id="unmuteBtn">
+                <i class="bi bi-volume-mute-fill"></i>
+              </button>
+              <input
+                id="volume-slider"
+                type="range"
+                min="0"
+                max="100"
+                value="100"
+                step="1"
+              />
+            </div>
+          </div>
+          <div class="time-display-count">
+            <span id="current-time">00:00</span> /
+            <span id="duration">00:00</span>
+          </div>
+        </div>
+        <div class="right-control">
+          <div class="speed-controls">
+            <span>Playback Speed: </span>
+            <select id="speed-select" class="form-select form-select-sm">
+              <option value="0.25">0.25x</option>
+              <option value="0.5">0.5x</option>
+              <option value="1" selected>1x (Normal)</option>
+              <option value="1.5">1.5x</option>
+              <option value="2">2x</option>
+            </select>
+          </div>
+          <button id="fullscreen-button">
+            <i class="fa-solid fa-expand"></i>
+          </button>
+        </div>
+      </div>
+      <div class="time-controls">
+        <button id="rewind-button" class="badge bg-primary">-5s</button>
+        <button id="forward-button" class="badge bg-primary">+5s</button>
+      </div>
+    </div>
+  </div>
                 <h5 class="mt-3">
                     <?php
            echo mysqli_fetch_array(mysqli_query($con, "SELECT * FROM package WHERE package_id='$package_id'"))['name'];
@@ -345,18 +629,82 @@ include 'includes/head.php';
         if(mysqli_num_rows($select) > 0){
           $row = mysqli_fetch_array($select);
           $package_id = $row['course_id'];
+          $video_id = getYouTubeVideoId($row['src']);
           ?>
       
        
- 
+          <input type="hidden" name="" id="videoIDYT" value="<?=$video_id?>">
 
    <div class="container mt-5">
     <div class="row">
         <!-- Video and description column -->
         <div class="col-md-8">
             <div class="video-container">
-                <iframe width="100%" height="400" src="<?=$row['src']?>" frameborder="0"
-                        allowfullscreen></iframe>
+            <div class="content">
+    <div id="video-container">
+      <div id="ytplayer"></div>
+      <div id="overlay"></div>
+    </div>
+
+    <div class="control-container">
+      <div class="slider-container">
+        <input
+          id="time-slider"
+          type="range"
+          min="0"
+          max="100"
+          value="0"
+          step="1"
+        />
+      </div>
+      <div class="bottom-content">
+        <div class="control-buttons">
+          <button id="play-button"><i class="bi bi-play-fill"></i></button>
+          <button id="pause-button"><i class="bi bi-pause-fill"></i></button>
+          <button id="play-loop"><i class="fa-solid fa-repeat"></i></button>
+          <button id="stop-loop"><i class="fa-solid fa-ban"></i></button>
+          <div class="volume-controls">
+            <div class="voulume-section">
+              <button id="muteBtn">
+                <i class="bi bi-volume-down-fill"></i>
+              </button>
+              <button id="unmuteBtn">
+                <i class="bi bi-volume-mute-fill"></i>
+              </button>
+              <input
+                id="volume-slider"
+                type="range"
+                min="0"
+                max="100"
+                value="100"
+                step="1"
+              />
+            </div>
+          </div>
+          <div class="time-display-count">
+            <span id="current-time">00:00</span> /
+            <span id="duration">00:00</span>
+          </div>
+        </div>
+        <div class="right-control">
+          <div class="speed-controls">
+            <span>Playback Speed: </span>
+            <select id="speed-select" class="form-select form-select-sm">
+              <option value="0.25">0.25x</option>
+              <option value="0.5">0.5x</option>
+              <option value="1" selected>1x (Normal)</option>
+              <option value="1.5">1.5x</option>
+              <option value="2">2x</option>
+            </select>
+          </div>
+          <button id="fullscreen-button">
+            <i class="fa-solid fa-expand"></i>
+          </button>
+        </div>
+      </div>
+     
+    </div>
+  </div>
                 <h5 class="mt-3">
                     <?php
            echo mysqli_fetch_array(mysqli_query($con, "SELECT * FROM package WHERE package_id='$package_id'"))['name'];
@@ -437,6 +785,150 @@ Content body end
 ***********************************-->
 
   <?php include("includes/footer.php"); ?>
+
+  <script>
+  // Ensure the YouTube API script is loaded
+  if (!document.querySelector('script[src="https://www.youtube.com/iframe_api"]')) {
+    const script = document.createElement("script");
+    script.src = "https://www.youtube.com/iframe_api";
+    document.head.appendChild(script);
+  }
+
+  let player;
+  let isLooping = false;
+  let currentVolume = 100;
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const videoID = document.getElementById("videoIDYT")?.value || "YOUR_DEFAULT_VIDEO_ID";
+
+    console.log("Initializing Player with Video ID:", videoID);
+
+    function createPlayer() {
+      player = new YT.Player("ytplayer", {
+        height: "100%",
+        width: "100%",
+        videoId: videoID,
+        events: {
+          onReady: onPlayerReady,
+          onStateChange: onPlayerStateChange,
+        },
+      });
+    }
+
+    // Ensure onYouTubeIframeAPIReady is accessible globally
+    window.onYouTubeIframeAPIReady = function () {
+      console.log("YouTube Iframe API Ready");
+      createPlayer();
+    };
+
+    function onPlayerReady() {
+      console.log("Player Ready");
+      updateDuration();
+      setInterval(updateTime, 1000);
+      player.setPlaybackQuality("hd1080");
+      player.setVolume(100);
+      document.getElementById("volume-slider").value = 100;
+    }
+
+    function onPlayerStateChange(event) {
+      if (event.data === YT.PlayerState.ENDED && isLooping) {
+        player.seekTo(0);
+        player.playVideo();
+      }
+    }
+
+    function updateTime() {
+      if (player && player.getCurrentTime) {
+        const currentTime = player.getCurrentTime();
+        const duration = player.getDuration();
+        document.getElementById("current-time").textContent = formatTime(currentTime);
+        document.getElementById("duration").textContent = formatTime(duration);
+        document.getElementById("time-slider").value = (currentTime / duration) * 100;
+      }
+    }
+
+    function updateDuration() {
+      const duration = player.getDuration();
+      document.getElementById("duration").textContent = formatTime(duration);
+      document.getElementById("time-slider").max = 100;
+    }
+
+    function formatTime(seconds) {
+      const minutes = Math.floor(seconds / 60);
+      const remainingSeconds = Math.floor(seconds % 60);
+      return `${minutes < 10 ? "0" : ""}${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
+    }
+
+    document.getElementById("play-button").addEventListener("click", function () {
+      player.playVideo();
+      this.style.display = "none";
+      document.getElementById("pause-button").style.display = "inline";
+    });
+
+    document.getElementById("pause-button").addEventListener("click", function () {
+      player.pauseVideo();
+      this.style.display = "none";
+      document.getElementById("play-button").style.display = "inline";
+    });
+
+    document.getElementById("rewind-button").addEventListener("click", function () {
+      const currentTime = player.getCurrentTime();
+      player.seekTo(Math.max(currentTime - 5, 0));
+    });
+
+    document.getElementById("forward-button").addEventListener("click", function () {
+      const currentTime = player.getCurrentTime();
+      const duration = player.getDuration();
+      player.seekTo(Math.min(currentTime + 5, duration));
+    });
+
+    document.getElementById("time-slider").addEventListener("input", function () {
+      const duration = player.getDuration();
+      const newTime = (this.value / 100) * duration;
+      player.seekTo(newTime);
+    });
+
+    document.getElementById("volume-slider").addEventListener("input", function () {
+      player.setVolume(this.value);
+    });
+
+    document.getElementById("muteBtn").addEventListener("click", function () {
+      currentVolume = player.getVolume();
+      player.mute();
+      this.style.display = "none";
+      document.getElementById("unmuteBtn").style.display = "inline";
+    });
+
+    document.getElementById("unmuteBtn").addEventListener("click", function () {
+      player.unMute();
+      player.setVolume(currentVolume);
+      this.style.display = "none";
+      document.getElementById("muteBtn").style.display = "inline";
+    });
+
+    document.getElementById("play-loop").addEventListener("click", function () {
+      isLooping = true;
+      this.style.display = "none";
+      document.getElementById("stop-loop").style.display = "inline";
+    });
+
+    document.getElementById("stop-loop").addEventListener("click", function () {
+      isLooping = false;
+      this.style.display = "none";
+      document.getElementById("play-loop").style.display = "inline";
+    });
+
+    document.getElementById("fullscreen-button").addEventListener("click", function () {
+      if (player && player.getIframe()) {
+        if (document.fullscreenElement) {
+          document.exitFullscreen();
+        } else {
+          player.getIframe().requestFullscreen();
+        }
+      }
+    });
+  });
+</script>
 
 </body>
 
