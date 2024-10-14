@@ -485,7 +485,7 @@ include 'includes/head.php';
         </div>
         <div class="right-control">
           <div class="speed-controls">
-            <span>Playback Speed: </span>
+            <span>Speed: </span>
             <select id="speed-select" class="form-select form-select-sm">
               <option value="0.25">0.25x</option>
               <option value="0.5">0.5x</option>
@@ -688,7 +688,7 @@ include 'includes/head.php';
         </div>
         <div class="right-control">
           <div class="speed-controls">
-            <span>Playback Speed: </span>
+            <span>Speed: </span>
             <select id="speed-select" class="form-select form-select-sm">
               <option value="0.25">0.25x</option>
               <option value="0.5">0.5x</option>
@@ -702,7 +702,10 @@ include 'includes/head.php';
           </button>
         </div>
       </div>
-     
+      <div class="time-controls">
+        <button id="rewind-button" class="badge bg-primary">-5s</button>
+        <button id="forward-button" class="badge bg-primary">+5s</button>
+      </div>
     </div>
   </div>
                 <h5 class="mt-3">
@@ -793,10 +796,19 @@ Content body end
     script.src = "https://www.youtube.com/iframe_api";
     document.head.appendChild(script);
   }
-
-  let player;
-  let isLooping = false;
-  let currentVolume = 100;
+      let player;
+      let playBtn = document.getElementById("play-button");
+      let pauseBtn = document.getElementById("pause-button");
+      let muteBtn = document.getElementById("muteBtn");
+      let unMuteBtn = document.getElementById("unmuteBtn");
+      let currentTimeElement = document.getElementById("current-time");
+      let durationElement = document.getElementById("duration");
+      let timeSlider = document.getElementById("time-slider");
+      let volumeSlider = document.getElementById("volume-slider");
+      let currentVolume = 100;
+      let startLoopBtn = document.getElementById("play-loop");
+      let stopLoopBtn = document.getElementById("stop-loop");
+      let isLooping = false;
 
   document.addEventListener("DOMContentLoaded", function () {
     const videoID = document.getElementById("videoIDYT")?.value || "YOUR_DEFAULT_VIDEO_ID";
@@ -821,112 +833,136 @@ Content body end
       createPlayer();
     };
 
-    function onPlayerReady() {
-      console.log("Player Ready");
-      updateDuration();
-      setInterval(updateTime, 1000);
-      player.setPlaybackQuality("hd1080");
-      player.setVolume(100);
-      document.getElementById("volume-slider").value = 100;
-    }
-
-    function onPlayerStateChange(event) {
-      if (event.data === YT.PlayerState.ENDED && isLooping) {
-        player.seekTo(0);
-        player.playVideo();
+    function onPlayerReady(event) {
+        updateDuration();
+        setInterval(updateTime, 1000);
+        player.setPlaybackQuality("hd1080");
+        document.getElementById("speed-select").value = 1;
+        player.setVolume(100);
+        volumeSlider.value = 100;
       }
-    }
 
-    function updateTime() {
-      if (player && player.getCurrentTime) {
-        const currentTime = player.getCurrentTime();
-        const duration = player.getDuration();
-        document.getElementById("current-time").textContent = formatTime(currentTime);
-        document.getElementById("duration").textContent = formatTime(duration);
-        document.getElementById("time-slider").value = (currentTime / duration) * 100;
-      }
-    }
+      function onPlayerStateChange(event) {
+        if (event.data === YT.PlayerState.ENDED && isLooping) {
+          player.seekTo(0);
+          player.playVideo();
+        }
 
-    function updateDuration() {
-      const duration = player.getDuration();
-      document.getElementById("duration").textContent = formatTime(duration);
-      document.getElementById("time-slider").max = 100;
-    }
-
-    function formatTime(seconds) {
-      const minutes = Math.floor(seconds / 60);
-      const remainingSeconds = Math.floor(seconds % 60);
-      return `${minutes < 10 ? "0" : ""}${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
-    }
-
-    document.getElementById("play-button").addEventListener("click", function () {
-      player.playVideo();
-      this.style.display = "none";
-      document.getElementById("pause-button").style.display = "inline";
-    });
-
-    document.getElementById("pause-button").addEventListener("click", function () {
-      player.pauseVideo();
-      this.style.display = "none";
-      document.getElementById("play-button").style.display = "inline";
-    });
-
-    document.getElementById("rewind-button").addEventListener("click", function () {
-      const currentTime = player.getCurrentTime();
-      player.seekTo(Math.max(currentTime - 5, 0));
-    });
-
-    document.getElementById("forward-button").addEventListener("click", function () {
-      const currentTime = player.getCurrentTime();
-      const duration = player.getDuration();
-      player.seekTo(Math.min(currentTime + 5, duration));
-    });
-
-    document.getElementById("time-slider").addEventListener("input", function () {
-      const duration = player.getDuration();
-      const newTime = (this.value / 100) * duration;
-      player.seekTo(newTime);
-    });
-
-    document.getElementById("volume-slider").addEventListener("input", function () {
-      player.setVolume(this.value);
-    });
-
-    document.getElementById("muteBtn").addEventListener("click", function () {
-      currentVolume = player.getVolume();
-      player.mute();
-      this.style.display = "none";
-      document.getElementById("unmuteBtn").style.display = "inline";
-    });
-
-    document.getElementById("unmuteBtn").addEventListener("click", function () {
-      player.unMute();
-      player.setVolume(currentVolume);
-      this.style.display = "none";
-      document.getElementById("muteBtn").style.display = "inline";
-    });
-
-    document.getElementById("play-loop").addEventListener("click", function () {
-      isLooping = true;
-      this.style.display = "none";
-      document.getElementById("stop-loop").style.display = "inline";
-    });
-
-    document.getElementById("stop-loop").addEventListener("click", function () {
-      isLooping = false;
-      this.style.display = "none";
-      document.getElementById("play-loop").style.display = "inline";
-    });
-
-    document.getElementById("fullscreen-button").addEventListener("click", function () {
-      if (player && player.getIframe()) {
-        if (document.fullscreenElement) {
-          document.exitFullscreen();
-        } else {
-          player.getIframe().requestFullscreen();
+        if (event.data === YT.PlayerState.PLAYING) {
+          updateDuration();
+          setInterval(updateTime, 1000);
         }
       }
-    });
+
+      function updateTime() {
+        var currentTime = player.getCurrentTime();
+        var duration = player.getDuration();
+        currentTimeElement.textContent = formatTime(currentTime);
+        durationElement.textContent = formatTime(duration);
+        timeSlider.value = (currentTime / duration) * 100;
+      }
+
+      function updateDuration() {
+        var duration = player.getDuration();
+        durationElement.textContent = formatTime(duration);
+        timeSlider.max = 100;
+      }
+
+      function formatTime(seconds) {
+        var minutes = Math.floor(seconds / 60);
+        var seconds = Math.floor(seconds % 60);
+        return (
+          (minutes < 10 ? "0" : "") +
+          minutes +
+          ":" +
+          (seconds < 10 ? "0" : "") +
+          seconds
+        );
+      }
+
+      playBtn.addEventListener("click", function () {
+        player.playVideo();
+        playBtn.style.display = "none";
+        pauseBtn.style.display = "inline";
+      });
+
+      pauseBtn.addEventListener("click", function () {
+        player.pauseVideo();
+        playBtn.style.display = "inline";
+        pauseBtn.style.display = "none";
+      });
+
+      document
+        .getElementById("rewind-button")
+        .addEventListener("click", function () {
+          var currentTime = player.getCurrentTime();
+          player.seekTo(Math.max(currentTime - 5, 0));
+        });
+
+      document
+        .getElementById("forward-button")
+        .addEventListener("click", function () {
+          var currentTime = player.getCurrentTime();
+          var duration = player.getDuration();
+          player.seekTo(Math.min(currentTime + 5, duration));
+        });
+
+      timeSlider.addEventListener("input", function () {
+        var duration = player.getDuration();
+        let newTime = (timeSlider.value / 100) * duration;
+        player.seekTo(newTime);
+      });
+
+      document
+        .getElementById("speed-select")
+        .addEventListener("change", function () {
+          let selectedSpeed = parseFloat(this.value);
+          player.setPlaybackRate(selectedSpeed);
+        });
+
+      volumeSlider.addEventListener("input", function () {
+        player.setVolume(volumeSlider.value);
+      });
+
+      muteBtn.addEventListener("click", function () {
+        currentVolume = volumeSlider.value;
+        player.mute();
+        muteBtn.style.display = "none";
+        unMuteBtn.style.display = "inline";
+        volumeSlider.value = 0;
+      });
+
+      unMuteBtn.addEventListener("click", function () {
+        player.unMute();
+        player.setVolume(currentVolume);
+        volumeSlider.value = currentVolume;
+        muteBtn.style.display = "inline";
+        unMuteBtn.style.display = "none";
+      });
+
+      startLoopBtn.addEventListener("click", function () {
+        isLooping = true;
+        startLoopBtn.style.display = "none"
+        stopLoopBtn.style.display = "inline"
+      });
+
+      stopLoopBtn.addEventListener("click", function () {
+        isLooping = false;
+        stopLoopBtn.style.display = "none"
+        startLoopBtn.style.display = "inline"
+      });
+
+      document
+        .getElementById("fullscreen-button")
+        .addEventListener("click", function () {
+          if (player && player.getIframe()) {
+            if (document.fullscreenElement) {
+              document.exitFullscreen();
+            } else {
+              player.getIframe().requestFullscreen();
+            }
+          }
+        });
   });
 </script>
 

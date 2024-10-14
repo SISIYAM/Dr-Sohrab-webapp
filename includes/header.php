@@ -23,7 +23,7 @@
 
                         // document.querySelector("#btnWrap").classList.add("hidden");
                         // document.querySelector(".pro-data").classList.remove("hidden");
-                        window.location.href = "../edit-profile";
+                        window.location.href = "../home";
                         
                         // location.reload();
 
