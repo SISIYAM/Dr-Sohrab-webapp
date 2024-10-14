@@ -50,27 +50,27 @@ include 'includes/head.php';
     margin-top: 20px;
 }
 
-/* Style for individual lecture items */
+
 .lecture-list .lecture-item {
     display: flex;
     align-items: center;
-    background-color: #888; /* Base color for the item */
-    color: white; /* Text color */
+    background-color: #888; 
+    color: white;
     border-radius: 5px;
     margin-bottom: 10px;
     padding: 10px;
-    transition: background-color 0.3s ease; /* Smooth transition */
+    transition: background-color 0.3s ease;
 }
 
-/* Hover effect for lecture items */
+
 .lecture-list .lecture-item:hover {
-    background-color: #111; /* Darker color on hover */
+    background-color: #111;
 }
 
-/* Make anchor tags look like buttons and display flex in column */
+
 .lecture-list .lecture-item a {
-    display: flex; /* Change to flex to allow column layout */
-    flex-direction: column; /* Arrange items in a column */
+    display: flex;
+    flex-direction: column;
     color: white;
     text-decoration: none; 
     flex: 1; 
