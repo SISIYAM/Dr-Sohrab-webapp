@@ -33,7 +33,7 @@ include './Admin/includes/dbcon.php';
 
                         // document.querySelector("#btnWrap").classList.add("hidden");
                         // document.querySelector(".pro-data").classList.remove("hidden");
-                        window.location.href = "../edit-profile";
+                        window.location.href = "../home";
                         
                         // location.reload();
 
@@ -108,41 +108,42 @@ include './Admin/includes/dbcon.php';
                 <?php
                 }elseif(isset($_GET['register'])){
                   ?>
-                <div class="auth-form">
-                  <h4 class="text-center mb-4">Sign up your account</h4>
-                  <form action="" method="post">
-                    <div class="form-group">
-                      <label>Full Name</label>
-                      <input type="text" class="form-control" id="exampleInputFirstName" name="full_name"
-                        placeholder="Enter Full Name" required>
-                    </div>
-                    <div class="form-group">
-                      <label>Username</label>
-                      <input type="text" class="form-control" name="username" id="exampleInputLastName"
-                        placeholder="Enter Unique Username" required>
-                    </div>
-                    <div class="form-group">
-                      <label>Email</label>
-                      <input type="email" class="form-control" name="email" id="exampleInputEmail"
-                        aria-describedby="emailHelp" placeholder="Enter Email Address" required>
-                    </div>
-                    <div class="form-group">
-                      <label>Password</label>
-                      <input type="password" class="form-control" name="password" id="exampleInputPassword"
-                        placeholder="Password" required>
-                    </div>
-                    <div class="form-group">
-                      <label>Confirm Password</label>
-                      <input type="password" class="form-control" name="confirm_password"
-                        id="exampleInputPasswordConfirm" placeholder="Confirm Password" required>
-                    </div>
-                    <div class="text-center mt-4">
-                      <button type="submit" name="registerBtn" class="btn btn-primary btn-block">Sign me up</button>
-                    </div>
-                  </form>
-                  <div class="new-account mt-3">
-                    <p>Already have an account? <a class="text-primary" href="login.php?login">Sign in</a></p>
-                  </div>
+                 <div class="auth-form col-md-12">
+                  <h4 class="text-center mb-4">Sign in your account</h4>
+                  <!--<form action="" method="post">-->
+                  <!--  <div class="form-group">-->
+                  <!--    <label><strong>Username</strong></label>-->
+                  <!--    <input type="text" class="form-control" placeholder="Enter username" name="username">-->
+                  <!--  </div>-->
+                  <!--  <div class="form-group">-->
+                  <!--    <label><strong>Password</strong></label>-->
+                  <!--    <input type="password" class="form-control" placeholder="Password" name="password">-->
+                  <!--  </div>-->
+                  <!--  <div class="form-row d-flex justify-content-between mt-4 mb-2">-->
+
+                  <!--    <div class="form-group">-->
+                  <!--      <a href="forgot-password">Forgot Password?</a>-->
+                  <!--    </div>-->
+                  <!--  </div>-->
+                  <!--  <div class="text-center">-->
+                  <!--    <button type="submit" name="LoginBtn" class="btn btn-primary btn-block">Sign me in</button>-->
+                  <!--  </div>-->
+                  <!--</form>-->
+                  <!--<div class="new-account mt-3">-->
+                  <!--  <p>Don't have an account? <a class="text-primary" href="login.php?register">Sign up</a></p>-->
+                  <!--</div>-->
+                  
+                   <!-- Sign In With Google button with HTML data attributes API -->
+                        <div id="g_id_onload" data-client_id="328918012143-776b4m4i6tr212i0nrnvtcp0pcsugb36.apps.googleusercontent.com"
+                            data-context="signin" data-ux_mode="popup" data-callback="handleCredentialResponse" data-auto_prompt="true">
+                        </div>
+
+                <div class="g_id_signin" data-type="standard" data-shape="circle" data-theme="outline" data-text="signin_with"
+                            data-size="large" data-logo_alignment="left">
+                        </div>
+                  
+                  
+                  
                 </div>
                 <?php
                 }

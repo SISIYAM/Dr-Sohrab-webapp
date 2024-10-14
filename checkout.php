@@ -226,12 +226,7 @@ location.replace("dashboard/login.php?login");
                                 <?php
                             }else{
                                 ?>
-                                    <form method='post'>
-                                        <input type='hidden' value="<?=$result['price']?>" name='price' />
-                                        <input type='hidden' value="<?=$result['name']?>" name='course_name' />
-                                        <input type='hidden' value="<?=$result['package_id']?>" name='package_id' />
-                                        <button class='btn btn-success' name='pay'>Buy now</button>
-                                    </form>
+                                   <a href="https://wa.me/8801740163296" class="btn btn-success">Buy now</a>
                                 <?php
                             }
                         ?>

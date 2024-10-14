@@ -2,10 +2,10 @@
 session_start();
 session_regenerate_id();
 include './dashboard/Admin/includes/dbcon.php';
-if(isset($_SESSION['student_id'])){
+if(isset($_COOKIE['student_id'])){
   ?>
 <script>
-location.replace("home.php");
+location.replace("home");
 </script>
 <?php
 }

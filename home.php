@@ -1,16 +1,16 @@
 <?php
 session_start();
 session_regenerate_id();
-if(!isset($_SESSION['student_id'])){
+if(!isset($_COOKIE['student_id'])){
 ?>
 <script>
-location.replace("login.php?login");
+location.replace("login?login");
 </script>
 <?php
 }
 
 include './dashboard/Admin/includes/dbcon.php';
-$id = $_SESSION['student_id'];
+$id = $_COOKIE['student_id'];
 include './includes/code.php';
 ?>
 <!DOCTYPE html>
@@ -253,7 +253,7 @@ Trending course START -->
                 <!-- Badge and icon -->
 
                 <!-- Title -->
-                <h5 class="card-title"><a href="home_checkout.php?id=<?=$res['package_id']?>"
+                <h5 class="card-title"><a href="checkout?id=<?=$res['package_id']?>"
                     class="stretched-link"><?=$res['name']?></a></h5>
 
                 <hr>
