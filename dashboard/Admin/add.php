@@ -517,7 +517,11 @@
                           <select name="duration" class="form-select" id="">
                             <option value="43200" selected>30 days</option>
                             <option value="86400">60 days</option>
-                            <option value="129600">90 days</option>
+                            <option value="129600">3 Months</option>
+                            <option value="10368000">4 Months</option>
+                            <option value="12960000">5 Months</option>
+                            <option value="15552000">6 Months</option>
+                            <option value="31104000">1 Year</option>
                           </select>
                         </div>
                         <div class="form-group col-3">

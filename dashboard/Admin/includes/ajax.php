@@ -19,7 +19,8 @@ if (isset($_POST['assignCourseStudent'])) {
     $output .= '
       <label for="student_id">Student ID: </label>
       <div class="form-group">
-        <input type="text" id="assignStudentId" value="' . $row['student_id'] . '" class="form-control">
+      <input type="hidden" id="assignStudentId" value="' . $row['student_id'] . '">
+        <input type="text" value="' . $row['student_id'] . '" class="form-control" readonly>
       </div>
 
       <label for="name">Name: </label>
@@ -68,24 +69,34 @@ if (isset($_POST['assignCourseStudent'])) {
 }
 
 
-// code for sumit assign course form and assig course
-if(isset($_POST['insertAssignCourse'])){
+if (isset($_POST['insertAssignCourse'])) {
   $student_id = $_POST['id'];
   $package_id = $_POST['package_id'];
   date_default_timezone_set('Asia/Dhaka');
   $timestamp = time();
   $status = 1;
-  
-  if($package_id != NULL){
-    $query = "INSERT INTO package_record (student_id, package_id,timestamp,status) VALUES ('$student_id', '$package_id','$timestamp','$status')";
-  
-  if (mysqli_query($con, $query)) {
-      echo 200; 
+
+  // Validate that package_id is not NULL
+  if ($package_id != NULL) {
+      // Check if the student_id and package_id combination already exists
+      $checkQuery = "SELECT * FROM package_record WHERE student_id = '$student_id' AND package_id = '$package_id'";
+      $checkResult = mysqli_query($con, $checkQuery);
+
+      if (mysqli_num_rows($checkResult) > 0) {
+          // If the combination exists, return 900
+          echo 900;
+      } else {
+          // If it doesn't exist, insert the new record
+          $query = "INSERT INTO package_record (student_id, package_id, timestamp, status) VALUES ('$student_id', '$package_id', '$timestamp', '$status')";
+
+          if (mysqli_query($con, $query)) {
+              echo 200; // Insert successful
+          } else {
+              echo 500; // Insert failed
+          }
+      }
   } else {
-      echo 500; 
-  }
-  }else{
-    echo 500;
+      echo 500; // Invalid package_id
   }
 }
 

@@ -37,10 +37,16 @@ $(document).ready(function () {
             icon: "success",
             title: "Assigned",
           }).then(() => {
-            location.reload();
+            location.reload(); // Reload the page after confirmation
+          });
+        } else if (response == 900) {
+          Swal2.fire({
+            icon: "warning",
+            title: "Warning",
+            text: "This student is already assigned to this package.",
           });
         } else {
-          callError();
+          callError(); // Handle other errors
         }
       },
     });
